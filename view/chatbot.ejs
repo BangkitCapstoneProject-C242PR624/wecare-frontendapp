@@ -1,0 +1,80 @@
+<section>
+    <div class="container py-5">
+        <div class="text-center">
+            <h2 class="mb-4">What can I help?</h2>
+            <div class="d-flex justify-content-center">
+                <div class="input-group" style="max-width: 600px;">
+                    <input id="userInput" type="text" class="form-control rounded-pill-start" placeholder="Send your message to WeCare.">
+                    <button id="sendMessage" class="btn btn-primary rounded-pill-end">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="chatContainer" class="mt-4">
+            <div class="d-flex justify-content-start mb-3">
+                <div class="bg-light text-dark p-3 rounded-pill shadow-sm" style="max-width: 75%;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    const userInput = document.getElementById("userInput");
+    const sendMessage = document.getElementById("sendMessage");
+    const chatContainer = document.getElementById("chatContainer");
+    
+    //add message 
+    function addUserMessage(message) {
+        const userChat = document.createElement("div");
+        userChat.className = "d-flex justify-content-end mb-3";
+        userChat.innerHTML = `
+            <div class="bg-primary text-white p-3 rounded-pill shadow-sm" style="max-width: 75%;">
+                ${message}
+            </div>
+        `;
+        chatContainer.appendChild(userChat);
+    }
+
+    // message respon
+    function addBotMessage(message) {
+        const botChat = document.createElement("div");
+        botChat.className = "d-flex justify-content-start mb-3";
+        botChat.innerHTML = `
+            <div class="bg-light text-dark p-3 rounded-pill shadow-sm" style="max-width: 75%;">
+                ${message}
+            </div>
+        `;
+        chatContainer.appendChild(botChat);
+    }
+
+    // message respon 
+    function getBotResponse(userMessage) {
+        if (userMessage.toLowerCase().includes("hello")) {
+            return "Hi there! How can I help you?";
+        } else if (userMessage.toLowerCase().includes("help")) {
+            return "Sure, what do you need help with?";
+        } else {
+            return "I'm sorry, I don't understand. Can you clarify?";
+        }
+    }
+
+    // Event listener 
+    sendMessage.addEventListener("click", () => {
+        const userMessage = userInput.value.trim();
+        if (userMessage !== "") {
+            addUserMessage(userMessage);
+            userInput.value = "";
+            setTimeout(() => {
+                addBotMessage(getBotResponse(userMessage));
+                chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll ke bawah otomatis
+            }, 1000); 
+        }
+    });
+    userInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            sendMessage.click();
+        }
+    });
+</script>
