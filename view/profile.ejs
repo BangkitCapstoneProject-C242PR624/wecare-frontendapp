@@ -1,0 +1,18 @@
+
+<!-- Profile Content -->
+<div class="container">
+    <h1 class="mb-4">Profile</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Menampilkan data pengguna yang diteruskan dari server -->
+            <h5 class="card-title">Name: <%= user.name %></h5>
+            <p class="card-text">Email: <%= user.email %></p>
+            <p class="card-text">Phone: <%= user.phone %></p>
+            <p class="card-text">Password: <%= user.password %></p>
+
+            <!-- Logout Button -->
+            <a href="/logout" class="btn btn-danger mt-3">Logout</a>
+        </div>
+    </div>
+</div>
