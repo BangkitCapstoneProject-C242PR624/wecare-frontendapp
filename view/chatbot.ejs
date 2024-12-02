@@ -12,69 +12,112 @@
             </div>
         </div>
         
-        <div id="chatContainer" class="mt-4">
-            <div class="d-flex justify-content-start mb-3">
-                <div class="bg-light text-dark p-3 rounded-pill shadow-sm" style="max-width: 75%;">
-                </div>
-            </div>
+        <div id="chatContainer" class="mt-4 overflow-auto" style="max-height: 500px; border: 1px solid #ddd; border-radius: 10px; padding: 10px;">
+            <!-- Chat messages will appear here -->
         </div>
     </div>
 </section>
+
 <script>
     const userInput = document.getElementById("userInput");
     const sendMessage = document.getElementById("sendMessage");
     const chatContainer = document.getElementById("chatContainer");
-    
-    //add message 
+
+    // Add user message
     function addUserMessage(message) {
         const userChat = document.createElement("div");
         userChat.className = "d-flex justify-content-end mb-3";
         userChat.innerHTML = `
-            <div class="bg-primary text-white p-3 rounded-pill shadow-sm" style="max-width: 75%;">
+            <div class="bg-primary text-white p-3 rounded-pill shadow-sm" style="max-width: 75%; word-wrap: break-word;">
                 ${message}
             </div>
         `;
         chatContainer.appendChild(userChat);
+        userChat.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // message respon
+    // Add bot message
     function addBotMessage(message) {
         const botChat = document.createElement("div");
         botChat.className = "d-flex justify-content-start mb-3";
         botChat.innerHTML = `
-            <div class="bg-light text-dark p-3 rounded-pill shadow-sm" style="max-width: 75%;">
+            <div class="bg-light text-dark p-3 rounded-pill shadow-sm" style="max-width: 75%; word-wrap: break-word;">
                 ${message}
             </div>
         `;
         chatContainer.appendChild(botChat);
+        botChat.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // message respon 
-    function getBotResponse(userMessage) {
-        if (userMessage.toLowerCase().includes("hello")) {
-            return "Hi there! How can I help you?";
-        } else if (userMessage.toLowerCase().includes("help")) {
-            return "Sure, what do you need help with?";
-        } else {
-            return "I'm sorry, I don't understand. Can you clarify?";
+    // Get bot response
+    async function getBotResponse(userMessage) {
+        try {
+            const response = await fetch('https://wecare-model-178630824724.asia-southeast2.run.app/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMessage }),
+            });
+            if (!response.ok) throw new Error('Failed to fetch response from API');
+            const data = await response.json();
+            return data.response;
+        } catch (error) {
+            console.error('Error:', error);
+            return "I'm sorry, there was an error connecting to the server.";
         }
     }
 
-    // Event listener 
-    sendMessage.addEventListener("click", () => {
+    // Handle sending message
+    async function handleSendMessage() {
         const userMessage = userInput.value.trim();
         if (userMessage !== "") {
             addUserMessage(userMessage);
             userInput.value = "";
-            setTimeout(() => {
-                addBotMessage(getBotResponse(userMessage));
-                chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll ke bawah otomatis
-            }, 1000); 
+            try {
+                const botResponse = await getBotResponse(userMessage);
+                addBotMessage(botResponse);
+            } catch (error) {
+                addBotMessage("Error: Unable to get response from the server.");
+            }
         }
-    });
-    userInput.addEventListener("keypress", (event) => {
+    }
+
+    // Event listener for send button
+    sendMessage.addEventListener("click", handleSendMessage);
+
+    // Event listener for Enter key
+    userInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-            sendMessage.click();
+            handleSendMessage();
         }
     });
 </script>
+
+<style>
+    .input-group {
+    margin-bottom: 30px !important;
+    }
+
+    #chatContainer {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    background-color: transparent !important;
+    overflow-y: auto !important;
+
+    }
+
+    .rounded-pill {
+        border-radius: 50px !important;
+    }
+
+    .rounded-pill-start {
+        border-top-left-radius: 50px !important;
+        border-bottom-left-radius: 50px !important;
+    }
+
+    .rounded-pill-end {
+        border-top-right-radius: 50px !important;
+        border-bottom-right-radius: 50px !important;
+    }
+</style>

@@ -1,68 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || "WeCare" %></title>
+    <title>
+        <%= title || "WeCare" %>
+    </title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
     <!-- Ikon -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-    <div class="d-flex">
-        <!-- Sidebar -->
-        <aside class="sidebar d-flex flex-column">
-            <div class="text-center py-3">
-                <h2 class="m-0">WeCare</h2>
-                <p class="text-muted">FirstAid Assist</p>
-            </div>
-            <nav class="flex-grow-1">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a href="/" class="nav-link d-flex align-items-center <% if (activePage === 'home') { %>active<% } %>">
-                            <i class="fas fa-home me-2"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/chatcare" class="nav-link d-flex align-items-center <% if (activePage === 'chatbot') { %>active<% } %>">
-                            <i class="fas fa-comments me-2"></i> Chat Care
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/emergency" class="nav-link d-flex align-items-center <% if (activePage === 'emergency') { %>active<% } %>">
-                            <i class="fas fa-phone-alt me-2"></i> Emergency Contact
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
+    <% if (showLayout===false) { %>
+        <%- body %>
+            <% } else { %>
+                <div class="d-flex">
+                    <!-- Sidebar -->
+                    <aside class="sidebar d-flex flex-column">
+                        <div class="text-center py-3">
+                            <a href="/home" class="text-decoration-none">
+                                <h2 class="m-0">WeCare</h2>
+                                <p class="text-muted">FirstAid Assist</p>
+                            </a>
+                        </div>
+                        <nav class="flex-grow-1">
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a href="/"
+                                        class="nav-link d-flex align-items-center <%= activePage === 'home' ? 'active' : '' %>">
+                                        <i class="fas fa-home me-2"></i> Home
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/chatcare"
+                                        class="nav-link d-flex align-items-center <%= activePage === 'chatcare' ? 'active' : '' %>">
+                                        <i class="fas fa-comments me-2"></i> Chat Care
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/emergency"
+                                        class="nav-link d-flex align-items-center <%= activePage === 'emergency' ? 'active' : '' %>">
+                                        <i class="fas fa-phone-alt me-2"></i> Emergency Contact
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </aside>
 
-        <!-- Content Area -->
-        <div class="content flex-grow-1 p-4" style="overflow-y: auto; height: 100vh;">
-            <header class="d-flex justify-content-between align-items-center mb-4">
-                <div class="ms-auto d-flex align-items-center">
-                <!-- Profile Icon -->
-                <div class="profile-icon">
-                    <i class="fas fa-user-circle fa-2x"></i>
+                    <!-- Content Area -->
+                    <div class="content flex-grow-1 p-4" style="overflow-y: auto; height: 100vh;">
+                        <header class="d-flex justify-content-between align-items-center mb-4">
+                            <!-- Tombol Hamburger (ikon menu) untuk Mobile -->
+                            <button class="btn btn-light d-block d-md-none" id="sidebar-toggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <div class="d-block d-md-none ms-3">
+                                <a href="/home" class="text-decoration-none">
+                                    <img src="/images/wecare.png" width="50px" height="50px" alt="WeCare Logo" class="logo">
+                                </a>
+                            </div>
+                            <div class="ms-auto d-flex align-items-center">
+                                <!-- Profile Icon as Link -->
+                                <a href="/profile"
+                                    class="nav-link d-flex align-items-center <%= activePage === 'chatcare' ? 'active' : '' %>">
+                                    <i class="fas fa-user-circle fa-2x"></i>
+                                </a>
+                            </div>
+                        </header>
+
+                        <!-- Main Content -->
+                        <main>
+                            <%- body %>
+                        </main>
+                    </div>
                 </div>
-            </header>
+                <% } %>
+                    <!-- Bootstrap JS -->
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                    <!-- Sidebar Mobile Mode -->
+                    <script>
+                        document.getElementById('sidebar-toggle').addEventListener('click', function () {
+                            const sidebar = document.querySelector('.sidebar');
+                            const toggleIcon = this.querySelector('i');
 
-            <!-- Main Content -->
-            <main>
-                <%- body %>
-            </main>
-        </div>
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                            sidebar.classList.toggle('show'); // Toggle sidebar
+                            // Toggle ikon hamburger menjadi (close)
+                            if (sidebar.classList.contains('show')) {
+                                toggleIcon.classList.remove('fa-bars');
+                                toggleIcon.classList.add('fa-times');
+                            } else {
+                                toggleIcon.classList.remove('fa-times');
+                                toggleIcon.classList.add('fa-bars');
+                            }
+                        });
+                    </script>
 </body>
+
 </html>

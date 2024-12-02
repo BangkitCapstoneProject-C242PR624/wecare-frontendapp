@@ -1,25 +1,37 @@
+<h2><strong>Hi, <%= userName %>! Welcome to WeCare!</strong></h2>
+<h6>Search your first aid here</h6>
+
 <div class="d-flex justify-content-end align-items-center mb-4">
-    <div class="search-bar d-flex align-items-center me-3">
-        <input type="text" class="form-control me-2" placeholder="Search">
-        <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-    </div>
+    <form class="search-bar d-flex align-items-center me-3" method="GET" action="/home">
+        <input type="text" name="search" class="form-control me-2" placeholder="Search" value="<%= searchQuery || '' %>">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+        <button type="reset" class="btn btn-secondary ms-2" onclick="window.location.href='/home'">Clear</button>
+    </form>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-4">
-        <a href="/article/choked" class="text-decoration-none">
-            <div class="card">
-                <i class="fas fa-user-alt-slash fa-2x mb-3"></i>
-                <p class="m-0">Choked</p>
+    <% if (searchQuery) { %> 
+        <% if (articles.length === 0) { %>
+            <div class="alert alert-warning text-center" role="alert">
+                No articles found for "<%= searchQuery %>". Please try a different search term.
             </div>
-        </a>
-    </div>
-    <div class="col-md-4">
-        <a href="/article/infection" class="text-decoration-none">
-            <div class="card">
-                <i class="fas fa-virus fa-2x mb-3"></i>
-                <p class="m-0">Infection</p>
+        <% } else { %>
+            <div class="alert alert-success text-center" role="alert">
+                <%= articles.length %> article<%= articles.length > 1 ? 's' : '' %> found for "<%= searchQuery %>".
             </div>
-        </a>
-    </div>
+        <% } %>
+    <% } %>
+
+    <% articles.forEach(article => { %>
+        <div class="col-md-4">
+            <a href="/article/<%= article.id %>" class="text-decoration-none">
+                <div class="card">
+                    <img src="<%= article.image %>" alt="<%= article.title %>" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= article.title %></h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    <% }); %>
 </div>
