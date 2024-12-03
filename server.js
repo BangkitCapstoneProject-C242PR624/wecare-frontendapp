@@ -218,6 +218,6 @@ app.get('/logout', (req, res) => {
 });
 
 // Start the server
-app.listen(3005, () => {
-  console.log('Server is running on http://localhost:3005');
+app.listen(8080, () => {
+  console.log('Server is running on http://localhost:8080');
 });
