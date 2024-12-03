@@ -1,161 +1,114 @@
-/* eslint-disable no-undef */
 require('dotenv').config();
 
-// Import required modules
+// ================== Import Modules ==================
 const express = require('express');
 const path = require('path');
 const ejsLayouts = require('express-ejs-layouts');
 const firebaseAdmin = require('firebase-admin');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
-// Initialize express app
+// ================== Initialize App ==================
 const app = express();
 
-// Middleware setup
+// ================== Middleware ==================
 app.use(cors());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Set up view engine and layouts
+// ================== View Engine ==================
 app.set('view engine', 'ejs');
 app.use(ejsLayouts);
-
-// Static files setup
 app.set('views', path.join(__dirname, 'view'));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Firebase Admin initialization
+// ================== Firebase Initialization ==================
 const serviceAccount = require(process.env.FIREBASE_KEY_PATH);
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
 });
-const db = firebaseAdmin.firestore(); // Firestore initialization
+const db = firebaseAdmin.firestore();
 
-// Middleware to verify Firebase ID token
+// ================== Session Configuration ==================
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'secret_key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set secure: true in production
+  })
+);
+
+// ================== Middleware Functions ==================
 async function verifyIdToken(idToken) {
   try {
-    const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
-    return decodedToken;
+    return await firebaseAdmin.auth().verifyIdToken(idToken);
   } catch (error) {
     console.error('Error verifying ID token:', error.message);
     return null;
   }
 }
 
-// Middleware to check authentication
 const checkAuth = async (req, res, next) => {
-  console.log(`Checking authentication for: ${req.path}`);
-  const idToken = req.cookies['idToken'];
-
-  if (idToken) {
-    try {
-      const decodedToken = await verifyIdToken(idToken);
-      if (decodedToken) {
-        req.user = decodedToken;
-        console.log('User authenticated:', decodedToken.uid);
-        return next();
-      }
-    } catch (error) {
-      console.error('Invalid token detected:', error.message);
-      res.clearCookie('idToken');
-    }
-  }
-  console.log(`Redirecting to /login from: ${req.path}`);
+  if (req.session.user) return next();
   res.redirect('/login');
 };
 
-// Root
+// ================== Routes ==================
+
+// Landing Page (Root)
 app.get('/', (req, res) => {
-  const idToken = req.cookies['idToken'];
-  if (idToken) {
-    verifyIdToken(idToken).then((decodedToken) => {
-      if (decodedToken) {
-        res.redirect('/home');
-      } else {
-        res.clearCookie('idToken');
-        res.render('wecare', { title: 'WeCare', showLayout: false });
-      }
-    });
-  } else {
-    res.render('wecare', { title: 'WeCare', showLayout: false });
-  }
+  if (req.session.user) return res.redirect('/home');
+  res.render('wecare', { title: 'WeCare', showLayout: false });
 });
 
-// Login route
+// Login Routes
 app.get('/login', (req, res) => {
-  const idToken = req.cookies['idToken'];
-  if (idToken) {
-    verifyIdToken(idToken).then((decodedToken) => {
-      if (decodedToken) {
-        res.redirect('/home');
-      } else {
-        res.clearCookie('idToken');
-        res.render('login', { title: 'Login', showLayout: false });
-      }
-    });
-  } else {
-    res.render('login', { title: 'Login', showLayout: false });
+  if (req.session.user) return res.redirect('/home');
+  res.render('login', { title: 'Login', showLayout: false });
+});
+
+app.post('/login', async (req, res) => {
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).send('No ID token provided');
+
+  try {
+    const decodedToken = await verifyIdToken(idToken);
+    if (!decodedToken) return res.status(401).send('Unauthorized');
+
+    req.session.user = { uid: decodedToken.uid, email: decodedToken.email };
+    await db.collection('users').doc(decodedToken.uid).set(
+      { lastLogin: new Date().toISOString(), uid: decodedToken.uid },
+      { merge: true }
+    );
+
+    res.status(200).send('Login successful');
+  } catch (error) {
+    console.error('Login error:', error.message);
+    res.status(500).send('Failed to verify token');
   }
 });
 
-app.post('/login', (req, res) => {
-  const idToken = req.body.idToken;
-  if (idToken) {
-    verifyIdToken(idToken).then((decodedToken) => {
-      if (decodedToken) {
-        res.cookie('idToken', idToken);
-        res.redirect('/home');
-      } else {
-        res.status(401).send('Unauthorized');
-      }
-    });
-  } else {
-    res.status(400).send('No ID token provided');
-  }
-});
-
-// Register route
+// Register Routes
 app.get('/register', (req, res) => {
-  const idToken = req.cookies['idToken'];
-  if (idToken) {
-    verifyIdToken(idToken).then((decodedToken) => {
-      if (decodedToken) {
-        res.redirect('/home');
-      } else {
-        res.clearCookie('idToken');
-        res.render('register', { title: 'Register', showLayout: false });
-      }
-    });
-  } else {
-    res.render('register', { title: 'Register', showLayout: false });
-  }
+  if (req.session.user) return res.redirect('/home');
+  res.render('register', { title: 'Register', showLayout: false });
 });
 
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    console.error('Register error: Missing email or password');
-    return res.status(400).send('Email and password are required');
-  }
+  if (!email || !password) return res.status(400).send('Email and password are required');
 
   try {
-    const userRecord = await firebaseAdmin.auth().createUser({
-      email,
-      password,
-    });
-    console.log('User registered:', userRecord.uid);
-
-    const idToken = await firebaseAdmin.auth().createCustomToken(userRecord.uid);
-    res.cookie('idToken', idToken);
-
+    const userRecord = await firebaseAdmin.auth().createUser({ email, password });
+    req.session.user = { uid: userRecord.uid, email: userRecord.email };
     res.redirect('/home');
   } catch (error) {
-    console.error('Error during registration:', error.message);
+    console.error('Registration error:', error.message);
     res.status(500).send('Registration failed');
   }
 });
@@ -164,7 +117,7 @@ app.post('/register', async (req, res) => {
 app.get('/home', checkAuth, async (req, res) => {
   try {
     const searchQuery = req.query.search || '';
-    const userRef = db.collection('users').doc(req.user.uid);
+    const userRef = db.collection('users').doc(req.session.user.uid);
     const userSnapshot = await userRef.get();
 
     if (!userSnapshot.exists) {
@@ -214,20 +167,18 @@ app.get('/emergency', checkAuth, (req, res) => {
   res.render('emergency', { title: 'Emergency Contact', activePage: 'emergency', showLayout: true });
 });
 
-// Profile route (protected)
+//Profile Routes
 app.get('/profile', checkAuth, async (req, res) => {
-  const userRef = db.collection('users').doc(req.user.uid);
+  const userRef = db.collection('users').doc(req.session.user.uid);
   const userSnapshot = await userRef.get();
   if (userSnapshot.exists) {
-    const userData = userSnapshot.data();
     res.render('profile', {
       title: 'Profile',
       activePage: 'profile',
       showLayout: true,
-      user: userData,
+      user: userSnapshot.data(),
     });
   } else {
-    console.log('Redirecting to /login from /profile - User not found');
     res.redirect('/login');
   }
 });
@@ -257,10 +208,13 @@ app.get('/article/:id', checkAuth, async (req, res) => {
   }
 });
 
-// Logout route
+// Logout Routes
 app.get('/logout', (req, res) => {
-  res.clearCookie('idToken');
-  res.redirect('/');
+  req.session.destroy((err) => {
+    if (err) return res.status(500).send('Error during session destruction');
+    res.clearCookie('connect.sid');
+    res.redirect('/');
+  });
 });
 
 // Start the server
