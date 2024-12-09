@@ -93,7 +93,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Register Routes
+// Register Route
 app.get('/register', (req, res) => {
   if (req.session.user) return res.redirect('/home');
   res.render('register', { title: 'Register', showLayout: false });
@@ -113,7 +113,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Home route (protected)
+//home route
 app.get('/home', checkAuth, async (req, res) => {
   try {
     const searchQuery = req.query.search || '';
@@ -141,6 +141,11 @@ app.get('/home', checkAuth, async (req, res) => {
       const searchLowerCase = searchQuery.toLowerCase();
       return title.includes(searchLowerCase);
     });
+
+    // Jika permintaan adalah JSON (AJAX), kirim JSON response
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ articles: filteredArticles });
+    }
 
     // Render halaman home dengan hasil pencarian
     res.render('home', {

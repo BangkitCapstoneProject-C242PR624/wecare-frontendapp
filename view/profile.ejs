@@ -1,20 +1,24 @@
 <!-- Profile Content -->
 <div class="container">
-    <h1 class="mb-4">Your Profile</h1>
+    <h1 class="mb-4"><strong>Profile</strong></h1>
 
     <div class="card">
-        <div class="card-body">
-            <left>
+        <div class="card-body text-center">
+            <div class="mb-3">
+                <i class="bi bi-person-circle" style="font-size: 4.5rem; color: #ffffff;"></i>
+            </div>
+
+            <!-- Informasi Profil -->
             <h4 class="card-title">
                 <i class="bi bi-person-fill"></i> Name: <%= user.name %>
             </h4>
-        </left>
             <h4 class="card-text">
                 <i class="bi bi-envelope-fill"></i> Email: <%= user.email %>
             </h4>
             <h4 class="card-text">
                 <i class="bi bi-telephone-fill"></i> Phone: <%= user.phone %>
             </h4>
+
             <!-- Logout Button -->
             <a href="/logout" class="btn btn-danger mt-3">
                 <i class="bi bi-box-arrow-right"></i>
@@ -22,3 +26,18 @@
         </div>
     </div>
 </div>
+
+<style>
+    @media (max-width: 768px) {
+
+        .card-title,
+        .card-text {
+            font-size: 1rem;
+        }
+
+        .card-title i,
+        .card-text i {
+            font-size: 1rem;
+        }
+    }
+</style>

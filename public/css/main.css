@@ -2,9 +2,11 @@
    General Reset and Basic Styles
    ----------------------------------------------- */
    body {
+    align-items: center;
+    justify-content: center;
     margin: 0;
     padding: 0;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -14,6 +16,7 @@
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
+    overflow: auto;
   }
   
   /* -----------------------------------------------
@@ -26,11 +29,25 @@
     padding: 1rem 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-    margin: 0;
-    position: fixed;
+    position: fixed; 
     top: 0;
     left: 0;
+    z-index: 1000; 
+    box-sizing: border-box;
   }
+
+  main.content {
+    margin-top: 60px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertikal: Pusat */
+    align-items: center;    /* Horizontal: Pusat */
+    min-height: calc(100vh - 60px); /* Sesuaikan dengan tinggi header */
+    width: 100%;            /* Pastikan lebarnya penuh */
+    box-sizing: border-box;
+    
+}
+
   
   header h1 {
     margin: 0;
@@ -159,7 +176,7 @@
   
   /* Global Styles */
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: #f7f9fc;
     color: #333;
     margin: 0;
@@ -168,12 +185,17 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-width: 100vh;
     flex-direction: column;
+    min-height: 100vh;
   }
   
   /* Container and Header */
   .container {
-    width: 90%;
+    width: 100%;
+    height:fit-content;
+    justify-content: center;
+    align-items: center;
     max-width: 450px;
     background-color: #fff;
     padding: 2rem;
@@ -181,9 +203,13 @@
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
     box-sizing: border-box;
-    margin-top: 20px;
+    margin-top: 0;
   }
-  
+
+  #signup {
+    margin-top: 30px;
+  }
+
   h1.form-title {
     font-size: 2rem;
     color: #3F51B5;
@@ -273,7 +299,6 @@
     margin-top: 1rem;
     background-color: transparent;
     color: #3F51B5;
-    border: 1px solid #3F51B5;
   }
   
   button#signInButton:hover,

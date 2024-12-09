@@ -1,15 +1,17 @@
 <section>
-    <div class="container py-5">
-      <h1 class="text-primary mb-4"><%= article.title %></h1>
-      <div class="text-center mb-4">
-        <img src="<%= article.image %>" alt="<%= article.title %>" class="img-fluid" style="max-width: 400px;">
-      </div>
-      <div class="text-dark">
-        <p><%= article.content %></p>
-      </div>
-      <a href="/home" class="btn btn-link text-primary">
-        <i class="fas fa-arrow-left"></i> Back
+  <div class="container py-0">
+    <div class="d-flex align-items-center mb-1">
+      <a href="/home" class="btn btn-link text-primary me-2" style="font-size: 1.5rem; color: #3F51B5;">
+        <i class="fas fa-arrow-left" style="font-size: 1.5rem; color: #3F51B5;"></i> 
       </a>
+      <h1 class="text mb-0" style="color: #3F51B5;"><%= article.title %></h1>
     </div>
-  </section>
-  
+    <br>
+    <div class="text-center mb-4">
+      <img src="<%= article.image %>" alt="<%= article.title %>" class="img-fluid custom-img">
+    </div>
+    <div class="text-dark">
+      <p><%= article.content %></p>
+    </div>
+  </div>
+</section>
